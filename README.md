@@ -1,6 +1,6 @@
 # ChromaGANPytorch
 
-Pytorch implementation of [ChromaGAN](https://github.com/pvitoria/ChromaGAN.git). `torch>=2.1.2 python>=3.10`
+Pytorch implementation of [ChromaGAN](https://github.com/pvitoria/ChromaGAN.git). `torch>=2.1.2 python>=3.9`
 
 ## Prepare Environment
 
@@ -8,8 +8,6 @@ Kaggle notebook or Colab. All Python packages in Kaggle notebook are listed in `
 
 ```
 %cd ChromaGANPytorch/SOURCE
-
-!git pull
 
 # Create directory hierarchy
 !python config.py
@@ -22,6 +20,9 @@ Kaggle notebook or Colab. All Python packages in Kaggle notebook are listed in `
 !ln -s /kaggle/input/image-colorization-dataset/data/test_color  ../DATASET/imagenet/test_color/test_data
 
 !ln -s /kaggle/input/image-colorization-dataset/data/test_black  ../DATASET/imagenet/infer_black/infer_data
+
+# Dataset validation
+!python image_dataset.py
 ```
 
 ## Directory Hierarchy
@@ -52,6 +53,9 @@ Kaggle notebook or Colab. All Python packages in Kaggle notebook are listed in `
 
 ```
 !python train.py
+
+# Training loss visualization
+tensorboard --logdir=../LOGS/imagenet
 ```
 
 ## Test
