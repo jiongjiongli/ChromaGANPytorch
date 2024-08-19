@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 import torchvision.models as models
 
 import config
@@ -50,6 +51,9 @@ def train():
     # Create directories
     config.create_dirs()
 
+    # Setup TensorBoard
+    tensor_board_writer = SummaryWriter(str(config.LOG_DIR))
+
     # DataLoader
     training_data = ImageDataset(config.TRAIN_BLACK_DIR, config.TRAIN_COLOR_DIR)
     train_dataloader = DataLoader(training_data, batch_size=config.BATCH_SIZE,
@@ -90,6 +94,8 @@ def train():
     else:
         progress_bar_ncols = None
 
+    global_step = 0
+
     while epoch <= config.NUM_EPOCHS:
         description = f'Epoch {epoch}/{config.NUM_EPOCHS}'
         progress_bar = tqdm(enumerate(train_dataloader),
@@ -98,6 +104,8 @@ def train():
                             ncols=progress_bar_ncols)
 
         for idx, (input_L, real_AB, _) in progress_bar:
+            global_step += 1
+
             input_L = input_L.to(config.DEVICE)
             real_AB = real_AB.to(config.DEVICE)
             real_LAB = torch.cat([input_L, real_AB], dim=1)
@@ -174,6 +182,8 @@ def train():
                 loss_str = f'{loss_value:.4f}'
                 loss_str_dict[loss_item] = loss_str
 
+                tensor_board_writer.add_scalar(f'Loss/{loss_item}', loss_value, global_step)
+
             progress_bar.set_postfix(ordered_dict=loss_str_dict)
 
             if idx + 1 == len(train_dataloader):
@@ -181,9 +191,11 @@ def train():
                     run_predict(epoch, test_dataloader, generator, config.MAX_TEST_NUM)
                     utils.save_checkpoint(epoch, generator, discriminator, G_optimizer, D_optimizer)
 
+        tensor_board_writer.flush()
         epoch += 1
 
     utils.save_loss_data_to_file(loss_data)
+    tensor_board_writer.close()
     print('Completed train!')
 
 def main():
