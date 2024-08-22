@@ -154,7 +154,8 @@ def save_pred_output_to_file(epoch, image_index, input_img, pred_img, color_img=
     fig.suptitle(f'Epoch: {epoch} Image index: {image_index}', fontsize=24)
 
     for image, title, ax in zip(images, titles, axes.ravel()):
-        ax.imshow(image)
+        im_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        ax.imshow(im_rgb)
         ax.set_title(title)
         ax.axis('off')
 
